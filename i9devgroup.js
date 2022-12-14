@@ -432,7 +432,9 @@ connection.query(sql, function (err2, results) {
         client.sendText(wa_id, mensagem_boas_vindas);
         client.onMessage(function (message) { return __awaiter(_this, void 0, void 0, function () {
             console.log(message)
+            message.chatId = message.from;
             console.log(message.chatId)
+
             var buffer_1, splits, fileName, fileName, diretorio_salva, sql;
             return __generator(this, function (_a) {
                 switch (_a.label) {
