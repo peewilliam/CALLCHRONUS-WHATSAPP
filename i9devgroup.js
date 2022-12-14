@@ -443,11 +443,8 @@ connection.query(sql, function (err2, results) {
                     }
             }
             console.log(message.type)
-            if(message.type == 'retry'){
-                console.lof('é um retry')
+            if(message.type == 'reply'){
                 message.type = 'chat';
-            }else{
-                console.log('nao é um retry')
             }
         
 
