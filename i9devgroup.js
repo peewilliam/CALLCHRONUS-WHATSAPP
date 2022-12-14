@@ -300,7 +300,7 @@ connection.query(sql, function (err2, results) {
                 mkdirFolderToken: '',
                 headless: true,
                 devtools: false,
-                useChrome: false,
+                useChrome: true,
                 debug: false,
                 logQR: true,
                 browserWS: '',
