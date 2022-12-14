@@ -438,8 +438,9 @@ connection.query(sql, function (err2, results) {
             }
 
             if(!message.sender){
-                message.sender = []
-                message.sender.verifiedName = message.notifyName
+                message.sender = {
+                    verifiedName: message.notifyName
+                    }
             }
 
             if(message.type == 'retry'){
