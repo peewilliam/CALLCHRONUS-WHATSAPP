@@ -296,7 +296,7 @@ connection.query(sql, function (err2, results) {
             // options
             {
                 multidevice: true,
-                folderNameToken: 'tokens',
+                // folderNameToken: 'tokens',
                 mkdirFolderToken: '',
                 headless: true,
                 devtools: false,
@@ -310,7 +310,7 @@ connection.query(sql, function (err2, results) {
                 disableWelcome: true,
                 updatesLog: true,
                 autoClose: 0,
-                createPathFileToken: true
+                createPathFileToken: false
             })
                 .then(function (client) {
                 start(client);
