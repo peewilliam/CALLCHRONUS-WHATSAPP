@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>teste_qr</title>
+</head>
+<body>
+<button id="btn_start">start</button>
+<button id="btn_stop">stop</button>
+
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+
+<script>
+
+var PORTA = window.location.port;
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+
+<script></script> 
+
+<script>
+var URL = 'https://servidor.i9devgroup.com:'+PORTA;
+
+$(document).on('click', '#btn_start', function(e){
+e.preventDefault();
+
+
+$.ajax({
+    type: 'POST',
+    url: URL+'/start',
+    data: {start:true},
+    success: function(retorno) {
+   
+alert('inciado')
+console.log(retorno)
+location.reload()       
+    }
+});
+
+})
+
+$(document).on('click', '#btn_stop', function(e){
+e.preventDefault();
+
+
+$.ajax({
+    type: 'POST',
+    url: URL+'/stop',
+    data: {stop:true},
+    success: function(retorno) {
+   
+        alert('parado')
+console.log(retorno)
+location.reload()     
+    }
+});
+
+})
+
+
+
+
+
+const socket = io(URL);
+
+socket.on('qr_code', function(message){
+    console.log(message)
+
+$('body').html('<img src="'+message+'">');
+
+})
+</script>
+</body>
+</html>
+
+
