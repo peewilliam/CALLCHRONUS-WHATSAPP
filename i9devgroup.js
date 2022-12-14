@@ -442,9 +442,12 @@ connection.query(sql, function (err2, results) {
                     verifiedName: message.notifyName
                     }
             }
-
+            console.log(message.type)
             if(message.type == 'retry'){
+                console.lof('é um retry')
                 message.type = 'chat';
+            }else{
+                console.log('nao é um retry')
             }
         
 
