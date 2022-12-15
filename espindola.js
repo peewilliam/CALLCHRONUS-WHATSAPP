@@ -517,10 +517,14 @@ connection.query(sql, function (err2, results) {
                                 // ESTÁ NA FILA VERIFICA SE SELECIONOU UM SETOR
                                 if (result[0]['setor'] != '0') {
                                     if(message.quotedMsg){
-                                        let str = message.quotedMsg.body;
-                                        str = str.replace(/\*([^\*]+?)\*(?!\*)/i, '<strong>$1</strong>');
-                                        message.body = `<b>Resposta</b> ↓ <br>`+str+`<hr>
-                                        <b>Mensagem</b>: `+message.body;
+
+                                        if(message.quotedMsg.body){
+                                            let str = message.quotedMsg.body;
+                                            str = str.replace(/\*([^\*]+?)\*(?!\*)/i, '<strong>$1</strong>');
+                                            message.body = `<b>Resposta</b> ↓ <br>`+str+`<hr>
+                                            <b>Mensagem</b>: `+message.body;
+                                        }
+                                        
                                     }
                                     var sql = "INSERT INTO mensagens (chat_id, author, corpo, time_msg, message_id, type, senderName, recebido, usuario, setor, id_server) VALUES ?";
                                     var values = [
