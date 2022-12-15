@@ -449,7 +449,7 @@ connection.query(sql, function (err2, results) {
 
            
             var verificaChat = message.chatId.split('@');
-            
+            var verificaChat = verificaChat[1];
 
             // if(verificaChat[1] == 'g.us' ){
             //     return false;
