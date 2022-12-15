@@ -296,7 +296,7 @@ connection.query(sql, function (err2, results) {
             // options
             {
                 multidevice: true,
-                folderNameToken: 'tokens',
+                // folderNameToken: 'tokens',
                 mkdirFolderToken: '',
                 headless: true,
                 devtools: false,
@@ -310,7 +310,7 @@ connection.query(sql, function (err2, results) {
                 disableWelcome: true,
                 updatesLog: true,
                 autoClose: 0,
-                createPathFileToken: true
+                createPathFileToken: false
             })
                 .then(function (client) {
                 start(client);
@@ -432,17 +432,48 @@ connection.query(sql, function (err2, results) {
         client.sendText(wa_id, mensagem_boas_vindas);
         client.onMessage(function (message) { return __awaiter(_this, void 0, void 0, function () {
             console.log(message)
-            console.log(message.chatId)
+
+            if(!message.chatId){
+                message.chatId = message.from;
+            }
+
+            if(!message.sender){
+                message.sender = {
+                    verifiedName: message.notifyName
+                    }
+            }
+            console.log(message.type)
+            if(message.type == 'reply'){
+                message.type = 'chat';
+            }
+
+           
+            var verificaChat = message.chatId.split('@');
+            var verificaChat = verificaChat[1];
+
+            // if(verificaChat[1] == 'g.us' ){
+            //     return false;
+            // }
+       
+        
+        
+
             var buffer_1, splits, fileName, fileName, diretorio_salva, sql;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (!(message.isGroupMsg != true && message.broadcast != true && message.chatId != 'status@broadcast')) return [3 /*break*/, 3];
+                        if (!(message.isGroupMsg != true && message.broadcast != true && message.chatId != 'status@broadcast' && verificaChat != 'g.us')) return [3 /*break*/, 3];
                         if (!message.mimetype) return [3 /*break*/, 2];
                         return [4 /*yield*/, client.decryptFile(message)];
                     case 1:
                         buffer_1 = _a.sent();
-                        splits = message.id.split('_', 3);
+
+                        if (typeof message.id === 'string' || message.id instanceof String){
+                            splits = message.id.split('_', 3);
+                        }else{
+                            splits = message.id._serialized.split('_', 3);
+                        }
+                        
                         if (message.mimetype == 'image/jpeg' || message.mimetype == 'image/png' || message.mimetype == 'image/webp' || message.mimetype == 'video/mp4' || message.mimetype == 'video/3gpp' || message.mimetype == 'audio/ogg; codecs=opus') {
                             fileName = splits[1] + '_' + splits[2] + '.' + mime.extension(message.mimetype);
                         }
@@ -479,7 +510,7 @@ connection.query(sql, function (err2, results) {
                         sql = "SELECT * FROM fila WHERE chatId = '" + message.chatId + "' AND id_server = '" + id_cliente + "'";
                         connection.query(sql, function (err, result) {
                             // VERIFICA SE ESTA NA FILA 
-                            if (result.length > 0) {
+                            if (result.length > 0 && verificaChat != 'g.us') {
                                 var temp = Date.now();
                                 var sql = "UPDATE fila SET mensagem = '" + message.body + "', type = '" + message.type + "', time_msg = '" + temp + "' WHERE id = '" + result[0]['id'] + "' AND id_server = '" + id_cliente + "'";
                                 connection.query(sql);
@@ -588,7 +619,7 @@ connection.query(sql, function (err2, results) {
                                     });
                                 }
                             }
-                            else {
+                            else if(verificaChat != 'g.us') {
                                 // NÃO ESTÁ NA FILA
                                 var timestamp = Date.now();
                                 var sql = "INSERT INTO mensagens (chat_id, author, corpo, time_msg, message_id, type, senderName, recebido, usuario, setor, id_server) VALUES ?";
