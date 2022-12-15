@@ -510,7 +510,7 @@ connection.query(sql, function (err2, results) {
                         sql = "SELECT * FROM fila WHERE chatId = '" + message.chatId + "' AND id_server = '" + id_cliente + "'";
                         connection.query(sql, function (err, result) {
                             // VERIFICA SE ESTA NA FILA 
-                            if (result.length > 0) {
+                            if (result.length > 0 && verificaChat != 'g.us') {
                                 var temp = Date.now();
                                 var sql = "UPDATE fila SET mensagem = '" + message.body + "', type = '" + message.type + "', time_msg = '" + temp + "' WHERE id = '" + result[0]['id'] + "' AND id_server = '" + id_cliente + "'";
                                 connection.query(sql);
@@ -619,7 +619,7 @@ connection.query(sql, function (err2, results) {
                                     });
                                 }
                             }
-                            else {
+                            else if(verificaChat != 'g.us') {
                                 // NÃO ESTÁ NA FILA
                                 var timestamp = Date.now();
                                 var sql = "INSERT INTO mensagens (chat_id, author, corpo, time_msg, message_id, type, senderName, recebido, usuario, setor, id_server) VALUES ?";
