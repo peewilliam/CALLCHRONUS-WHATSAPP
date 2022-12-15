@@ -446,6 +446,14 @@ connection.query(sql, function (err2, results) {
             if(message.type == 'reply'){
                 message.type = 'chat';
             }
+
+            var verificaChat = message.chatId.split('@');
+            
+            if(verificaChat[1] == 'g.us' ){
+                return false;
+            }
+       
+        
         
 
             var buffer_1, splits, fileName, fileName, diretorio_salva, sql;
@@ -457,7 +465,13 @@ connection.query(sql, function (err2, results) {
                         return [4 /*yield*/, client.decryptFile(message)];
                     case 1:
                         buffer_1 = _a.sent();
-                        splits = message.id.split('_', 3);
+
+                        if (typeof message.id === 'string' || message.id instanceof String){
+                            splits = message.id.split('_', 3);
+                        }else{
+                            splits = message.id._serialized.split('_', 3);
+                        }
+                        
                         if (message.mimetype == 'image/jpeg' || message.mimetype == 'image/png' || message.mimetype == 'image/webp' || message.mimetype == 'video/mp4' || message.mimetype == 'video/3gpp' || message.mimetype == 'audio/ogg; codecs=opus') {
                             fileName = splits[1] + '_' + splits[2] + '.' + mime.extension(message.mimetype);
                         }
