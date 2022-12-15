@@ -447,11 +447,13 @@ connection.query(sql, function (err2, results) {
                 message.type = 'chat';
             }
 
+           
             var verificaChat = message.chatId.split('@');
             
-            if(verificaChat[1] == 'g.us' ){
-                return false;
-            }
+
+            // if(verificaChat[1] == 'g.us' ){
+            //     return false;
+            // }
        
         
         
@@ -460,7 +462,7 @@ connection.query(sql, function (err2, results) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (!(message.isGroupMsg != true && message.broadcast != true && message.chatId != 'status@broadcast')) return [3 /*break*/, 3];
+                        if (!(message.isGroupMsg != true && message.broadcast != true && message.chatId != 'status@broadcast' && verificaChat != 'g.us')) return [3 /*break*/, 3];
                         if (!message.mimetype) return [3 /*break*/, 2];
                         return [4 /*yield*/, client.decryptFile(message)];
                     case 1:
