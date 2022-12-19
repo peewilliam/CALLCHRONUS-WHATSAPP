@@ -1169,6 +1169,9 @@ var Whatsmensagem = `${nome_operador}
             });
         });
         socket.on('transferir_chat', function (chat) {
+            console.log('vem  de chat', chat)
+
+            console.log('fim')
             var sql = "UPDATE fila SET setor = '" + chat.departamento + "', operador = '0' WHERE chatId = '" + chat.chat_id + "' AND id_server = '" + id_cliente + "'";
             connection.query(sql);
             var contato_atendimento = "SELECT * FROM contatos WHERE telefone = '" + chat.telefone + "' AND id_server = '" + id_cliente + "' LIMIT 1";
