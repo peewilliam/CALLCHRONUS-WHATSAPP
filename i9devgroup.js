@@ -1194,7 +1194,20 @@ var Whatsmensagem = `${nome_operador}
                                 return [3 /*break*/, 4];
                             case 1:
                                 console.log('nao existe 67');
-                                return [4 /*yield*/, globalClient.getNumberProfile(chat.chat_id)];
+                                var new_numero = chat.chat_id.split("@")[0];
+                                saida = {
+                                    departamento: chat.departamento,
+                                    nome: new_numero,
+                                    telefone: new_numero,
+                                    chat_id: chat.chat_id,
+                                    empresa: '',
+                                    img: ''
+                                };
+                                io.emit('transferir_chat', saida);
+                                                                            
+                                
+                                return [3 /*break*/, 4];
+                                // return [4 /*yield*/, globalClient.getNumberProfile(chat.chat_id)];
                             case 2:
                                 user = _a.sent();
                                 if (!(user != 404)) return [3 /*break*/, 4];
