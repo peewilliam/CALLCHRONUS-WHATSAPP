@@ -255,6 +255,7 @@ connection.query(sql, function (err2, results) {
             return [2 /*return*/];
         });
     }); });
+
     app.post('/start', function (req, res) {
         if (globalClient == undefined) {
 
@@ -328,6 +329,65 @@ connection.query(sql, function (err2, results) {
             res.send(false);
         }
     });
+
+
+function startManual(){
+    venom.create(
+        session_id,
+       // session_id, //Pass the name of the client you want to start the bot
+       //catchQR
+       function (base64Qrimg, asciiQR, attempts, urlCode) {
+           //   console.log('Number of attempts to read the qrcode: ', attempts);
+           console.log('Terminal qrcode: ', asciiQR);
+           var sair = {
+               asciiQR: asciiQR,
+               base64Qrimg: base64Qrimg,
+               attempts: attempts,
+               urlCode: urlCode
+           };
+           io.emit('qr_code', base64Qrimg);
+           //   console.log('base64 image string qrcode: ', base64Qrimg);
+           //   console.log('urlCode (data-ref): ', urlCode);
+           // var timestamp = new Date().getTime();
+           // var sql = `UPDATE qr_code SET data = '${timestamp}', qr_code = '${urlCode}' WHERE session_id = '${session_id}'`;
+           // connection.query(sql);
+       }, 
+       // statusFind
+       function (statusSession, session) {
+           console.log('Status Session: ', statusSession); //return isLogged || notLogged || browserClose || qrReadSuccess || qrReadFail || autocloseCalled || desconnectedMobile || deleteToken
+           //Create session wss return "serverClose" case server for close
+           console.log('Session name: ', session);
+       }, 
+       // options
+       {
+           multidevice: true,
+           // folderNameToken: 'tokens',
+           mkdirFolderToken: '',
+           headless: true,
+           devtools: false,
+           useChrome: true,
+           debug: false,
+           logQR: true,
+           browserWS: '',
+           browserArgs: [''],
+           puppeteerOptions: { args: ['--no-sandbox'] },
+           disableSpins: true,
+           disableWelcome: true,
+           updatesLog: true,
+           autoClose: 0,
+           createPathFileToken: false
+       })
+           .then(function (client) {
+           start(client);
+       })["catch"](function (erro) {
+           console.log(erro);
+       });
+}
+
+startManual()
+
+
+
     // app.use('/qr_code', express.static('qr_code'));
     app.get('/att_img_perfil', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
         var contato_atendimento;
@@ -430,6 +490,9 @@ connection.query(sql, function (err2, results) {
         setInterval(function () { verificarstatus(); }, 10000);
         var mensagem_boas_vindas = '👨🏻‍💻 *Bem vindo a Espíndola & Helfrich* 👨🏻‍💻,\nSeu WhatsApp esta sendo automaziado por *Call-Chronus*';
         client.sendText(wa_id, mensagem_boas_vindas);
+
+        
+
         client.onMessage(function (message) { return __awaiter(_this, void 0, void 0, function () {
             console.log(message)
 
@@ -517,10 +580,14 @@ connection.query(sql, function (err2, results) {
                                 // ESTÁ NA FILA VERIFICA SE SELECIONOU UM SETOR
                                 if (result[0]['setor'] != '0') {
                                     if(message.quotedMsg){
-                                        let str = message.quotedMsg.body;
-                                        str = str.replace(/\*([^\*]+?)\*(?!\*)/i, '<strong>$1</strong>');
-                                        message.body = `<b>Resposta</b> ↓ <br>`+str+`<hr>
-                                        <b>Mensagem</b>: `+message.body;
+
+                                        if(message.quotedMsg.body){
+                                            let str = message.quotedMsg.body;
+                                            str = str.replace(/\*([^\*]+?)\*(?!\*)/i, '<strong>$1</strong>');
+                                            message.body = `<b>Resposta</b> ↓ <br>`+str+`<hr>
+                                            <b>Mensagem</b>: `+message.body;
+                                        }
+                                        
                                     }
                                     var sql = "INSERT INTO mensagens (chat_id, author, corpo, time_msg, message_id, type, senderName, recebido, usuario, setor, id_server) VALUES ?";
                                     var values = [
@@ -555,6 +622,7 @@ connection.query(sql, function (err2, results) {
                                         if (err)
                                             throw err;
                                         result_departamento.every(function (row) {
+                                            var row_fila = row;
                                             if (row.numero == message.body) {
                                                 var sql = "UPDATE fila SET setor = '" + row.id + "' WHERE id = '" + result[0]['id'] + "' AND id_server = '" + id_cliente + "'";
                                                 connection.query(sql);
@@ -583,25 +651,38 @@ connection.query(sql, function (err2, results) {
                                                             }
                                                             else {
                                                                 console.log('nao existe');
-                                                                globalClient.getNumberProfile(message.chatId).then(function (newResult) {
-                                                                    if (newResult != 404) {
-                                                                        // globalClient.getProfilePicFromServer(message.chatId).then(function (newResult2) {
-                                                                            var newResult2 = undefined;
-                                                                            if (newResult2 == undefined) {
-                                                                                newResult2 = '';
-                                                                            }
+
+                                                                var new_numero = message.chatId.split("@")[0];
                                                                             saida = {
-                                                                                departamento: row.id,
-                                                                                nome: newResult.id.user,
-                                                                                telefone: newResult.id.user,
-                                                                                chat_id: newResult.id._serialized,
+                                                                                departamento: row_fila.id,
+                                                                                nome: new_numero,
+                                                                                telefone: new_numero,
+                                                                                chat_id: message.chatId,
                                                                                 empresa: '',
-                                                                                img: newResult2
+                                                                                img: ''
                                                                             };
                                                                             io.emit('transferir_chat', saida);
-                                                                        // });
-                                                                    }
-                                                                });
+                                                                //back code
+                                                                // globalClient.getNumberProfile(message.chatId).then(function (newResult) {
+                                                                //     if (newResult != 404) {
+                                                                //         // globalClient.getProfilePicFromServer(message.chatId).then(function (newResult2) {
+                                                                //             var newResult2 = undefined;
+                                                                //             if (newResult2 == undefined) {
+                                                                //                 newResult2 = '';
+                                                                //             }
+                                                                //             saida = {
+                                                                //                 departamento: row.id,
+                                                                //                 nome: newResult.id.user,
+                                                                //                 telefone: newResult.id.user,
+                                                                //                 chat_id: newResult.id._serialized,
+                                                                //                 empresa: '',
+                                                                //                 img: newResult2
+                                                                //             };
+                                                                //             io.emit('transferir_chat', saida);
+                                                                //         // });
+                                                                //     }
+                                                                // });
+                                                                // end back code
                                                             }
                                                             return [2 /*return*/];
                                                         });
@@ -964,25 +1045,40 @@ var Whatsmensagem = `${nome_operador}
                                     }
                                     else {
                                         console.log('nao existe');
-                                        globalClient.getNumberProfile(retorno_query[i].chatId).then(function (newResult) {
-                                            if (newResult != 404) {
-                                                // globalClient.getProfilePicFromServer(retorno_query[i].chatId).then(function (newResult2) {
-                                                    var newResult2 = undefined;
-                                                    if (newResult2 == undefined) {
-                                                        newResult2 = '';
-                                                    }
+
+                                        console.log('nao existe aqui 2');
+
+                                        var new_numero = retorno_query[i].chatId.split("@")[0];
                                                     saida = {
                                                         departamento: retorno_query[i].setor,
-                                                        nome: newResult.id.user,
-                                                        telefone: newResult.id.user,
-                                                        chat_id: newResult.id._serialized,
+                                                        nome: new_numero,
+                                                        telefone: new_numero,
+                                                        chat_id: retorno_query[i].chatId,
                                                         empresa: '',
-                                                        img: newResult2
+                                                        img: ''
                                                     };
-                                                    socket.emit('transferir_chat', saida);
-                                                // });
-                                            }
-                                        });
+                                                    io.emit('transferir_chat', saida);
+
+
+                                        // globalClient.getNumberProfile(retorno_query[i].chatId).then(function (newResult) {
+                                        //     if (newResult != 404) {
+                                        //         // globalClient.getProfilePicFromServer(retorno_query[i].chatId).then(function (newResult2) {
+                                        //             var newResult2 = undefined;
+                                        //             if (newResult2 == undefined) {
+                                        //                 newResult2 = '';
+                                        //             }
+                                        //             saida = {
+                                        //                 departamento: retorno_query[i].setor,
+                                        //                 nome: newResult.id.user,
+                                        //                 telefone: newResult.id.user,
+                                        //                 chat_id: newResult.id._serialized,
+                                        //                 empresa: '',
+                                        //                 img: newResult2
+                                        //             };
+                                        //             socket.emit('transferir_chat', saida);
+                                        //         // });
+                                        //     }
+                                        // });
                                     }
                                     return [2 /*return*/];
                                 });
@@ -1094,7 +1190,7 @@ var Whatsmensagem = `${nome_operador}
                                 io.emit('transferir_chat', saida);
                                 return [3 /*break*/, 4];
                             case 1:
-                                console.log('nao existe');
+                                console.log('nao existe 67');
                                 return [4 /*yield*/, globalClient.getNumberProfile(chat.chat_id)];
                             case 2:
                                 user = _a.sent();
