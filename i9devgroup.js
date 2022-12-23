@@ -384,7 +384,7 @@ function startManual(){
        });
 }
 
-startManual()
+// startManual()
 
 
 
